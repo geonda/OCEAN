@@ -1010,7 +1010,7 @@ sub QEprintInput
   print $fh "ATOMIC_SPECIES\n";# . $inputs{'atompp'} . "\n";
   for( my $a=0; $a < scalar @{$generalRef->{'structure'}->{'zsymb'}}; $a++ )
   {
-    printf $fh "%4s  0.0  %s\n", $generalRef->{'structure'}->{'zsymb'}[$a], $generalRef->{'psp'}->{'pp_list'}[$a];
+    printf $fh "%4s  0.0  %s\n", $generalRef->{'structure'}->{'zsymb'}[$a], $generalRef->{'psp'}->{'pp_list'}[$a] . ".UPF";
   }
 
 #  if ($inputs{'ibrav'} == 0) {
