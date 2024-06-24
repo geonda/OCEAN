@@ -12,6 +12,9 @@ use POSIX;
 use File::Spec;
 use File::Copy;
 use Math::Trig;
+# new check
+# use warnings;
+use File::Path qw(make_path remove_tree);
 
 #TODO: should loop here over split if we have it
 sub QErunNSCF
@@ -972,6 +975,52 @@ sub QErunPH
 
 # Subroutine to print a QE-style input file
 #   Pass in a file handle and a hashtable
+
+
+sub parse_qe_version {
+    my ($output_file) = @_;
+
+    open my $fh, '<', $output_file or die "Failed to open $output_file: $!";
+    while (my $line = <$fh>) {
+        if ($line =~ /Program PWSCF\s+v\.(\d+)\.(\d+)/) {
+            my $major = $1;
+            my $minor = $2;
+            return "$major.$minor";
+        }
+    }
+    close $fh;
+    return undef;
+}
+
+sub run_qe_test {
+    my ($work_dir, $input_file, $output_file) = @_;
+
+    # Create the working directory and input file
+    make_path($work_dir);
+    open my $fh, '>', File::Spec->catfile($work_dir, $input_file) or die "Failed to create $input_file: $!";
+    close $fh;
+
+    # Execute pw.x
+    chdir $work_dir or die "Failed to change directory to $work_dir: $!";
+    my $out=`/home/a.geondzhian/src/dev/bin/pw.x < input.txt > output.txt`;
+    chdir '..' or die "Failed to change directory back: $!";
+
+    # Parse the Quantum ESPRESSO version from the output
+    my $qe_version = parse_qe_version(File::Spec->catfile($work_dir, $output_file));
+
+    if (defined $qe_version) {
+        print "Quantum ESPRESSO version: $qe_version\n";
+    } else {
+        print "Quantum ESPRESSO version not found in the output file.\n";
+    }
+
+    # Delete the working directory
+    remove_tree($work_dir);
+    return $qe_version
+}
+
+
+
 sub QEprintInput
 {
   my ($fh, $generalRef, $specificRef, $calcFlag, $kptString ) = @_;
@@ -1019,7 +1068,7 @@ sub QEprintInput
       printf "QE version %g\n", $generalRef->{'scf'}->{'version'};
     }
   }
-
+  
   my $noncolin = '.false.';
   $noncolin = '.true.' if( $generalRef->{'general'}->{'noncolin'} );
   my $spinorb = '.false.';
@@ -1118,6 +1167,17 @@ sub QEprintInput
     print $fh "$generalRef->{'general'}->{'ldau'}->{'Hubbard_J0'}\n" 
         if( $generalRef->{'general'}->{'ldau'}->{'Hubbard_J0'} ne "" );
   }
+ printf "New hubbard flag has been implemented\n";
+ printf $generalRef->{'general'}->{''};
+ my $qev=run_qe_test( 'qe_test', 'input.txt', 'output.txt');
+ printf "$qev\n";
+ # Example usage
+# unless ( eval {my $qev=run_qe_test( 'qe_test', 'input.txt', 'output.txt'); return 1 } ) {
+#     # printf "$qev\n";
+# }
+
+
+
 #  if( $inputs{'qe_scissor'}  ne "" )
 #  {
 #    print $fh "$inputs{'qe_scissor'}\n";
