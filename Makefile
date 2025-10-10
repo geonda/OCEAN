@@ -37,7 +37,7 @@ clean:
 install:
 	mkdir -p $(INSTDIR)
 	cp $(SCRIPTS) $(AUX) $(INSTDIR)
-	cp $(AUX_EXE) $(INSTDIR)
+	#cp $(AUX_EXE) $(INSTDIR)
 	cd Common;       make install
 	cd DFT;          make install
 	cd PREP;         make install
