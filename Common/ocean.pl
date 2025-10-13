@@ -79,9 +79,20 @@ if( length $ENV{"OCEAN_VERSION_HASH"} > 1 )
 my $OPT_Clean = '1';
 my $OPT_CleanSaved = '';
 my $OPT_SaveMin = '';
+my $OPT_Test = 0;
 
-GetOptions ('clean' => \$OPT_Clean, 'cleansaved' => \$OPT_CleanSaved, 'min' => \$OPT_SaveMin);
+GetOptions ('clean' => \$OPT_Clean, 'cleansaved' => \$OPT_CleanSaved, 'min' => \$OPT_SaveMin, 'test' => \$OPT_Test,);
 ##########################################
+
+# Test
+#########################################
+if ($OPT_Test) {
+  print "OCEAN version: $ENV{'OCEAN_VERSION'}\n";
+  if (length $ENV{'OCEAN_VERSION_HASH'} > 1) {
+    print "Commit hash: $ENV{'OCEAN_VERSION_HASH'}\n";
+  }
+  exit 0;
+}
 
 # Clean
 ##########################################
